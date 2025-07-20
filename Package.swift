@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.1
 
 import PackageDescription
 
@@ -37,9 +37,10 @@ let package = Package(
     .package(url: "https://github.com/pointfreeco/swift-custom-dump", from: "1.3.3"),
     .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.9.0"),
     .package(url: "https://github.com/pointfreeco/xctest-dynamic-overlay", from: "1.5.0"),
-    .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.3.0"),
-    .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.18.4"),
-    .package(url: "https://github.com/pointfreeco/swift-structured-queries", from: "0.19.0"),
+    // Temporarily disabled for Linux compatibility
+    // .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.3.0"),
+ .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.18.4"),
+    .package(url: "https://github.com/pointfreeco/swift-structured-queries", from: "0.7.0"),
   ],
   targets: [
     .target(
@@ -54,7 +55,8 @@ let package = Package(
       dependencies: [
         "StructuredQueriesGRDBCore",
         .product(name: "GRDB", package: "GRDB.swift"),
-        .product(name: "Sharing", package: "swift-sharing"),
+        // Temporarily disabled for Linux compatibility
+        // .product(name: "Sharing", package: "swift-sharing"),
       ]
     ),
     .testTarget(

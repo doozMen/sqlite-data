@@ -2,13 +2,16 @@ import Dependencies
 import Dispatch
 import Foundation
 import GRDB
+#if canImport(Sharing)
 import Sharing
+#endif
 import StructuredQueriesGRDBCore
 
 #if canImport(Combine)
   @preconcurrency import Combine
 #endif
 
+#if canImport(Sharing)
 extension SharedReaderKey {
   /// A key that can query for data in a SQLite database.
   ///
@@ -433,3 +436,4 @@ private struct ImmediateScheduler: ValueObservationScheduler, Hashable {
     action()
   }
 }
+#endif // canImport(Sharing)

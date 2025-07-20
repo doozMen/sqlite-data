@@ -7,6 +7,7 @@
 
 // NB: Deprecated after 0.2.2
 
+#if canImport(Sharing)
 @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
 @available(
   *,
@@ -553,3 +554,4 @@ private struct FetchOneStatementPackRequest<each Value: QueryRepresentable>: Sta
     return result
   }
 }
+#endif // canImport(Sharing)
