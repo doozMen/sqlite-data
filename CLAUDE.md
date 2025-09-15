@@ -15,6 +15,10 @@ swift build
 # Run tests
 swift test
 
+# Run tests with specific configuration
+swift test -c debug
+swift test -c release
+
 # Build for release
 swift build -c release
 
@@ -29,6 +33,9 @@ make xcodebuild
 
 # Build specific example
 xcodebuild -scheme CaseStudies -configuration Debug -skipMacroValidation
+
+# Build with custom configuration
+make SCHEME=SyncUps CONFIG=Release xcodebuild
 
 # Available schemes: CaseStudies, SyncUps, Reminders
 ```
@@ -53,6 +60,7 @@ swift format format -p -r -i Sources Tests Package.swift
 ### Library Structure
 - `SharingGRDB`: Main product combining all functionality with macros
 - `SharingGRDBCore`: Core property wrappers without macros
+- `SharingGRDBTestSupport`: Testing utilities and helpers
 - `StructuredQueriesGRDB`: GRDB driver with SQL macro support
 - `StructuredQueriesGRDBCore`: Database operations and query execution
 
