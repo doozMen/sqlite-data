@@ -29,9 +29,8 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-concurrency-extras", from: "1.0.0"),
         .package(url: "https://github.com/pointfreeco/swift-custom-dump", from: "1.3.3"),
         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.9.0"),
-        .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.3.0"),
-        // NB: Local fork with Swift 6.3 fixes
-        .package(name: "swift-perception", path: "../swift-perception"),
+        // NB: Local fork with Swift 6.3 fixes for swift-perception (transitive dependency)
+        .package(name: "swift-sharing", path: "../swift-sharing"),
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.18.4"),
         .package(
             path: "../swift-structured-queries",
