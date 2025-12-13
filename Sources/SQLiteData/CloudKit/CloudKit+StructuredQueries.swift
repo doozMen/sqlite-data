@@ -283,10 +283,29 @@
       typealias EquatableCKRecordValueProtocol = CKRecordValueProtocol & Equatable
 
       self.userModificationTime = other.userModificationTime
-      for column in T.TableColumns.writableColumns {
-        func open<Value>(_ column: some WritableTableColumnExpression<T, Value>) {
+      _update(
+        with: other,
+        row: row,
+        columnNames: &columnNames,
+        parentForeignKey: parentForeignKey,
+        columns: T.TableColumns.writableColumns
+      )
+    }
+
+    private func _update<T: PrimaryKeyedTable>(
+      with other: CKRecord,
+      row: T,
+      columnNames: inout [String],
+      parentForeignKey: ForeignKey?,
+      columns: [any WritableTableColumnExpression]
+    ) {
+      typealias EquatableCKRecordValueProtocol = CKRecordValueProtocol & Equatable
+
+      for column in columns {
+        func open<Root, Value>(_ column: some WritableTableColumnExpression<Root, Value>) {
           let key = column.name
-          let keyPath = column.keyPath as! KeyPath<T, Value.QueryOutput>
+          let column = column as! any WritableTableColumnExpression<T, Value>
+          let keyPath = column.keyPath
           let didSet: Bool
           if let value = other[key] as? CKAsset {
             didSet = setAsset(value, forKey: key, at: other.encryptedValues[at: key])
