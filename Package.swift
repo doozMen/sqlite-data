@@ -31,7 +31,8 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-custom-dump", from: "1.3.3"),
         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.9.0"),
         // NB: Fork with Swift 6.3 fixes (uses doozMen/swift-perception)
-        .package(url: "https://github.com/doozMen/swift-sharing", revision: "f1170dc9b28faea3edec20705839eb2bc349bcdb"),
+        // TODO: Pin to specific commit after merging PR #3
+        .package(url: "https://github.com/doozMen/swift-sharing", branch: "fix/swift-build-compatibility"),
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.18.4"),
         // NB: Fork with Swift 6.3 fixes
         .package(

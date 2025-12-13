@@ -11,11 +11,28 @@ on:
 
 jobs:
   library:
-    name: macOS
+    name: macOS (Swift ${{ matrix.swift }}, ${{ matrix.config }})
     strategy:
       matrix:
-        xcode: ['16.4']
-        config: ['debug', 'release']
+        include:
+          - xcode: '16.0'
+            swift: '6.0'
+            config: 'debug'
+          - xcode: '16.0'
+            swift: '6.0'
+            config: 'release'
+          - xcode: '16.2'
+            swift: '6.2'
+            config: 'debug'
+          - xcode: '16.2'
+            swift: '6.2'
+            config: 'release'
+          - xcode: '16.4'
+            swift: '6.3'
+            config: 'debug'
+          - xcode: '16.4'
+            swift: '6.3'
+            config: 'release'
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
