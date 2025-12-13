@@ -25,15 +25,18 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-collections", from: "1.0.0"),
-        .package(name: "GRDB.swift", path: "../GRDB-swift"),
+        // NB: Fork synced with upstream v7.9.0
+        .package(url: "https://github.com/doozMen/GRDB.swift", branch: "master"),
         .package(url: "https://github.com/pointfreeco/swift-concurrency-extras", from: "1.0.0"),
         .package(url: "https://github.com/pointfreeco/swift-custom-dump", from: "1.3.3"),
         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.9.0"),
-    .package(url: "https://github.com/pointfreeco/swift-perception", from: "2.0.0"),
-        .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.3.0"),
+        // NB: Fork with Swift 6.3 fixes (uses doozMen/swift-perception)
+        .package(url: "https://github.com/doozMen/swift-sharing", branch: "main"),
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.18.4"),
+        // NB: Fork with Swift 6.3 fixes
         .package(
-            path: "../swift-structured-queries",
+            url: "https://github.com/doozMen/swift-structured-queries",
+            branch: "main",
             traits: [
                 .trait(
                     name: "StructuredQueriesTagged",
