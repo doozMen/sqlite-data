@@ -8,6 +8,7 @@ CloudKit synchronization.
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fpointfreeco%2Fsqlite-data%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/pointfreeco/sqlite-data)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fpointfreeco%2Fsqlite-data%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/pointfreeco/sqlite-data)
 
+  * [Swift 6.3 Compatibility](#Swift-63-Compatibility)
   * [Learn more](#Learn-more)
   * [Overview](#Overview)
   * [Quick start](#Quick-start)
@@ -19,6 +20,21 @@ CloudKit synchronization.
   * [Installation](#Installation)
   * [Community](#Community)
   * [License](#License)
+
+## Swift 6.3 Compatibility
+
+**Important**: CloudKit functionality is temporarily disabled when building with Swift 6.3-dev due to compiler crashes ([#2](https://github.com/doozMen/sqlite-data/issues/2)).
+
+### Affected Features (Swift 6.3+)
+- CloudKit synchronization (`SyncEngine`)
+- CloudKit sharing (`CloudKitSharing`)
+- All CloudKit-related APIs
+
+### Workaround
+Use Swift 6.2.x if you need CloudKit features. Core SQLite functionality (queries, `@FetchAll`, `@FetchOne`) works on all Swift versions.
+
+### Timeline
+These limitations will be removed once the Swift compiler bugs are fixed. We test against new Swift snapshots regularly.
 
 ## Learn more
 
