@@ -2,103 +2,117 @@
   import CryptoKit
   import Foundation
 
-  @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
-  extension SyncEngine {
-    /// Migrates integer primary-keyed tables and tables without primary keys to
-    /// CloudKit-compatible, UUID primary keys.
-    ///
-    /// To synchronize a table to CloudKit it must have a primary key, and that primary key must
-    /// be a globally unique identifier, such as a UUID. However, changing the type of a column
-    /// in SQLite is a [multi-step process] that must be followed very carefully, otherwise you run
-    /// the risk of corrupting your users' data.
-    ///
-    /// [multi-step process]: https://sqlite.org/lang_altertable.html#making_other_kinds_of_table_schema_changes
-    ///
-    /// This method is a general purpose tool that analyzes a set of tables to try to automatically
-    /// perform that migration for you. It performs the following steps:
-    ///
-    ///   * Computes a random salt to use for backfilling existing integer primary keys with UUIDs.
-    ///   * For each table passed to this method:
-    ///     * Creates a new table with essentially the same schema, but the following changes:
-    ///       * A new temporary name is given to the table.
-    ///       * If an integer primary key exists, it is changed to a "TEXT" column with a
-    ///         "NOT NULL PRIMARY KEY ON CONFLICT REPLACE DEFAULT" constraint, and a default of
-    ///         "uuid()" if no `uuid` argument is given, otherwise the argument is used.
-    ///       * If no primary key exists, one is added with the same constraints as above.
-    ///       * All integer foreign keys are changed to "TEXT" columns with no other changes.
-    ///     * All data from the existing table is copied over into the new table, but all integer
-    ///       IDs (both primary and foreign keys) are transformed into UUIDs by MD5 hashing the
-    ///       integer, the table name, and the salt mentioned above, and turning that hash into a
-    ///       UUID.
-    ///     * The existing table is dropped.
-    ///     * Thew new table is renamed to have the same name as the table just dropped.
-    ///   * Any indexes and stored triggers that were removed from dropping tables in the steps
-    ///     above are recreated.
-    ///   * Executes a "PRAGMA foreign_key_check;" query to make sure that the integrity of the data
-    ///     is preserved.
-    ///
-    /// If all of those steps are performed without throwing an error, then your schema and data
-    /// should have been successfully migrated to UUIDs. If an error is thrown for any reason,
-    /// then it means the tool was not able to safely migrate your data and so you will need to
-    /// perform the migration [manually](<doc:ManuallyMigratingPrimaryKeys>).
-    ///
-    /// - Parameters:
-    ///   - db: A database connection.
-    ///   - tables: Tables to migrate.
-    ///   - uuidFunction: A UUID function to use for the default value of primary keys in your
-    ///     tables' schemas. If `nil`, SQLite's `uuid` function will be used.
-    public static func migratePrimaryKeys<each T: PrimaryKeyedTable>(
-      _ db: Database,
-      tables: repeat (each T).Type,
-      dropUniqueConstraints: Bool = false,
-      uuid uuidFunction: (any ScalarDatabaseFunction<(), UUID>)? = nil
-    ) throws
-    where
-      repeat (each T).PrimaryKey.QueryOutput: IdentifierStringConvertible,
-      repeat (each T).TableColumns.PrimaryColumn: TableColumnExpression
-    {
-      let salt =
-        (try uuidFunction.flatMap { uuid -> UUID? in
-          try #sql("SELECT \(quote: uuid.name)()", as: UUID.self).fetchOne(db)
+  // NB: Swift 6.2.3 and 6.3-dev crash when compiling the primary key migration feature
+  // due to a compiler bug with #sql macro interpolation combined with $backfillUUID
+  // (macro-generated database function).
+  //
+  // This entire feature is disabled on Swift 6.2.3+ until the compiler bug is fixed.
+  // See detailed comments below in the PrimaryKeyedTable extension.
+  //
+  // Tracking: https://github.com/doozMen/sqlite-data/issues/2
+  // TODO: Re-enable when Swift 6.3 stabilizes or compiler bug is fixed.
+  #if !compiler(>=6.2.3)
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    extension SyncEngine {
+      /// Migrates integer primary-keyed tables and tables without primary keys to
+      /// CloudKit-compatible, UUID primary keys.
+      ///
+      /// To synchronize a table to CloudKit it must have a primary key, and that primary key must
+      /// be a globally unique identifier, such as a UUID. However, changing the type of a column
+      /// in SQLite is a [multi-step process] that must be followed very carefully, otherwise you run
+      /// the risk of corrupting your users' data.
+      ///
+      /// [multi-step process]: https://sqlite.org/lang_altertable.html#making_other_kinds_of_table_schema_changes
+      ///
+      /// This method is a general purpose tool that analyzes a set of tables to try to automatically
+      /// perform that migration for you. It performs the following steps:
+      ///
+      ///   * Computes a random salt to use for backfilling existing integer primary keys with UUIDs.
+      ///   * For each table passed to this method:
+      ///     * Creates a new table with essentially the same schema, but the following changes:
+      ///       * A new temporary name is given to the table.
+      ///       * If an integer primary key exists, it is changed to a "TEXT" column with a
+      ///         "NOT NULL PRIMARY KEY ON CONFLICT REPLACE DEFAULT" constraint, and a default of
+      ///         "uuid()" if no `uuid` argument is given, otherwise the argument is used.
+      ///       * If no primary key exists, one is added with the same constraints as above.
+      ///       * All integer foreign keys are changed to "TEXT" columns with no other changes.
+      ///     * All data from the existing table is copied over into the new table, but all integer
+      ///       IDs (both primary and foreign keys) are transformed into UUIDs by MD5 hashing the
+      ///       integer, the table name, and the salt mentioned above, and turning that hash into a
+      ///       UUID.
+      ///     * The existing table is dropped.
+      ///     * Thew new table is renamed to have the same name as the table just dropped.
+      ///   * Any indexes and stored triggers that were removed from dropping tables in the steps
+      ///     above are recreated.
+      ///   * Executes a "PRAGMA foreign_key_check;" query to make sure that the integrity of the data
+      ///     is preserved.
+      ///
+      /// If all of those steps are performed without throwing an error, then your schema and data
+      /// should have been successfully migrated to UUIDs. If an error is thrown for any reason,
+      /// then it means the tool was not able to safely migrate your data and so you will need to
+      /// perform the migration [manually](<doc:ManuallyMigratingPrimaryKeys>).
+      ///
+      /// - Note: This method is unavailable on Swift 6.2.3+ due to a compiler bug.
+      ///   See https://github.com/doozMen/sqlite-data/issues/2
+      ///
+      /// - Parameters:
+      ///   - db: A database connection.
+      ///   - tables: Tables to migrate.
+      ///   - uuidFunction: A UUID function to use for the default value of primary keys in your
+      ///     tables' schemas. If `nil`, SQLite's `uuid` function will be used.
+      public static func migratePrimaryKeys<each T: PrimaryKeyedTable>(
+        _ db: Database,
+        tables: repeat (each T).Type,
+        dropUniqueConstraints: Bool = false,
+        uuid uuidFunction: (any ScalarDatabaseFunction<(), UUID>)? = nil
+      ) throws
+      where
+        repeat (each T).PrimaryKey.QueryOutput: IdentifierStringConvertible,
+        repeat (each T).TableColumns.PrimaryColumn: TableColumnExpression
+      {
+        let salt =
+          (try uuidFunction.flatMap { uuid -> UUID? in
+            try #sql("SELECT \(quote: uuid.name)()", as: UUID.self).fetchOne(db)
+          }
+          ?? UUID()).uuidString
+
+        db.add(function: $backfillUUID)
+        defer { db.remove(function: $backfillUUID) }
+
+        var migratedTableNames: [String] = []
+        for table in repeat each tables {
+          migratedTableNames.append(table.tableName)
         }
-        ?? UUID()).uuidString
-
-      db.add(function: $backfillUUID)
-      defer { db.remove(function: $backfillUUID) }
-
-      var migratedTableNames: [String] = []
-      for table in repeat each tables {
-        migratedTableNames.append(table.tableName)
-      }
-      let indicesAndTriggersSQL =
-        try SQLiteSchema
-        .select(\.sql)
-        .where {
-          $0.tableName.in(migratedTableNames)
-            && $0.type.in([#bind(.index), #bind(.trigger)])
-            && $0.sql.isNot(nil)
+        let indicesAndTriggersSQL =
+          try SQLiteSchema
+          .select(\.sql)
+          .where {
+            $0.tableName.in(migratedTableNames)
+              && $0.type.in([#bind(.index), #bind(.trigger)])
+              && $0.sql.isNot(nil)
+          }
+          .fetchAll(db)
+          .compactMap(\.self)
+        for table in repeat each tables {
+          try table.migratePrimaryKeyToUUID(
+            db: db,
+            dropUniqueConstraints: dropUniqueConstraints,
+            uuidFunction: uuidFunction,
+            migratedTableNames: migratedTableNames,
+            salt: salt
+          )
         }
-        .fetchAll(db)
-        .compactMap(\.self)
-      for table in repeat each tables {
-        try table.migratePrimaryKeyToUUID(
-          db: db,
-          dropUniqueConstraints: dropUniqueConstraints,
-          uuidFunction: uuidFunction,
-          migratedTableNames: migratedTableNames,
-          salt: salt
-        )
-      }
-      for sql in indicesAndTriggersSQL {
-        try #sql(QueryFragment(stringLiteral: sql)).execute(db)
-      }
+        for sql in indicesAndTriggersSQL {
+          try #sql(QueryFragment(stringLiteral: sql)).execute(db)
+        }
 
-      let foreignKeyChecks = try PragmaForeignKeyCheck.all.fetchAll(db)
-      if !foreignKeyChecks.isEmpty {
-        throw ForeignKeyCheckError(checks: foreignKeyChecks)
+        let foreignKeyChecks = try PragmaForeignKeyCheck.all.fetchAll(db)
+        if !foreignKeyChecks.isEmpty {
+          throw ForeignKeyCheckError(checks: foreignKeyChecks)
+        }
       }
     }
-  }
+  #endif
 
   private struct MigrationError: LocalizedError {
     let reason: Reason
@@ -124,127 +138,127 @@
     }
   }
 
-  @available(iOS 16, macOS 13, tvOS 13, watchOS 9, *)
-  extension PrimaryKeyedTable where TableColumns.PrimaryColumn: TableColumnExpression {
-    fileprivate static func migratePrimaryKeyToUUID(
-      db: Database,
-      dropUniqueConstraints: Bool,
-      uuidFunction: (any ScalarDatabaseFunction<(), UUID>)? = nil,
-      migratedTableNames: [String],
-      salt: String
-    ) throws {
-      let schema =
-        try SQLiteSchema
-        .select(\.sql)
-        .where { $0.type.eq(#bind(.table)) && $0.tableName.eq(tableName) }
-        .fetchOne(db)
-        ?? nil
+  // NB: Swift 6.2.3 and 6.3-dev crash when compiling this extension due to a compiler bug
+  // with #sql macro interpolation combined with $backfillUUID (macro-generated database
+  // function) in complex control flow.
+  //
+  // Error: "Assertion failed: (Start.isValid() == End.isValid() && 'Start and end should
+  // either both be valid or both be invalid!'), function SourceRange, file SourceLoc.h"
+  //
+  // This is a CloudKit-specific migration feature that:
+  // 1. Is only relevant on Apple platforms (CloudKit doesn't exist on Linux/Android)
+  // 2. Is used for migrating existing integer primary keys to UUID primary keys
+  // 3. Is not needed for new databases or cross-platform builds
+  //
+  // Workaround: Disable on Swift 6.2.3+ until the compiler bug is fixed.
+  // Tracking: https://github.com/doozMen/sqlite-data/issues/2
+  // TODO: Re-enable when Swift 6.3 stabilizes or compiler bug is fixed.
+  #if !compiler(>=6.2.3)
+    @available(iOS 16, macOS 13, tvOS 13, watchOS 9, *)
+    extension PrimaryKeyedTable where TableColumns.PrimaryColumn: TableColumnExpression {
+      fileprivate static func migratePrimaryKeyToUUID(
+        db: Database,
+        dropUniqueConstraints: Bool,
+        uuidFunction: (any ScalarDatabaseFunction<(), UUID>)? = nil,
+        migratedTableNames: [String],
+        salt: String
+      ) throws {
+        let schema =
+          try SQLiteSchema
+          .select(\.sql)
+          .where { $0.type.eq(#bind(.table)) && $0.tableName.eq(tableName) }
+          .fetchOne(db)
+          ?? nil
 
-      guard let schema
-      else {
-        throw MigrationError(reason: .tableNotFound(tableName))
-      }
+        guard let schema
+        else {
+          throw MigrationError(reason: .tableNotFound(tableName))
+        }
 
-      let tableInfo = try PragmaTableInfo<Self>.all.fetchAll(db)
-      let primaryKeys = tableInfo.filter(\.isPrimaryKey)
-      guard
-        (primaryKeys.count == 1 && primaryKeys[0].isInt)
-          || primaryKeys.isEmpty
-      else {
-        throw MigrationError(reason: .invalidPrimaryKey)
-      }
-      guard primaryKeys.count <= 1
-      else {
-        throw MigrationError(reason: .invalidPrimaryKey)
-      }
+        let tableInfo = try PragmaTableInfo<Self>.all.fetchAll(db)
+        let primaryKeys = tableInfo.filter(\.isPrimaryKey)
+        guard
+          (primaryKeys.count == 1 && primaryKeys[0].isInt)
+            || primaryKeys.isEmpty
+        else {
+          throw MigrationError(reason: .invalidPrimaryKey)
+        }
+        guard primaryKeys.count <= 1
+        else {
+          throw MigrationError(reason: .invalidPrimaryKey)
+        }
 
-      let foreignKeys = try PragmaForeignKeyList<Self>.all.fetchAll(db)
-      guard foreignKeys.allSatisfy({ migratedTableNames.contains($0.table) })
-      else {
-        throw MigrationError(reason: .invalidForeignKey)
-      }
+        let foreignKeys = try PragmaForeignKeyList<Self>.all.fetchAll(db)
+        guard foreignKeys.allSatisfy({ migratedTableNames.contains($0.table) })
+        else {
+          throw MigrationError(reason: .invalidForeignKey)
+        }
 
-      let newTableName = "new_\(tableName)"
-      let uuidFunction = uuidFunction?.name ?? "uuid"
-      let newSchema = try schema.rewriteSchema(
-        dropUniqueConstraints: dropUniqueConstraints,
-        oldPrimaryKey: primaryKeys.first?.name,
-        newPrimaryKey: columns.primaryKey.name,
-        foreignKeys: foreignKeys.map(\.from),
-        uuidFunction: uuidFunction
-      )
-
-      var newColumns: [String] = []
-      var convertedColumns: [QueryFragment] = []
-      if primaryKeys.first == nil {
-        convertedColumns.append("NULL")
-        newColumns.append(columns.primaryKey.name)
-      }
-      newColumns.append(contentsOf: tableInfo.map(\.name))
-      // NB: Swift 6.3-dev crashes on complex closures with #sql macro interpolation.
-      // Extracted to helper function to work around compiler bug.
-      for info in tableInfo {
-        let fragment = convertTableInfoToQueryFragment(
-          info,
-          primaryKeyName: primaryKey.name,
-          foreignKeys: foreignKeys,
-          tableName: tableName,
-          salt: salt
+        let newTableName = "new_\(tableName)"
+        let uuidFunction = uuidFunction?.name ?? "uuid"
+        let newSchema = try schema.rewriteSchema(
+          dropUniqueConstraints: dropUniqueConstraints,
+          oldPrimaryKey: primaryKeys.first?.name,
+          newPrimaryKey: columns.primaryKey.name,
+          foreignKeys: foreignKeys.map(\.from),
+          uuidFunction: uuidFunction
         )
-        convertedColumns.append(fragment)
-      }
 
-      try #sql(QueryFragment(stringLiteral: newSchema)).execute(db)
-      try #sql(
-        """
-        INSERT INTO \(quote: newTableName) \
-        ("rowid", \(newColumns.map { "\(quote: $0)" }.joined(separator: ", ")))
-        SELECT "rowid", \(convertedColumns.joined(separator: ", ")) \
-        FROM \(Self.self)
-        ORDER BY "rowid"
-        """
-      )
-      .execute(db)
-      try #sql(
-        """
-        DROP TABLE \(Self.self)
-        """
-      )
-      .execute(db)
-      try #sql(
-        """
-        ALTER TABLE \(quote: newTableName) RENAME TO \(Self.self)
-        """
-      )
-      .execute(db)
-    }
-
-    // NB: Extracted from closure to work around Swift 6.3-dev compiler crash.
-    // The compiler crashes on complex closures mixing #sql macro interpolation with nested closures.
-    private static func convertTableInfoToQueryFragment(
-      _ tableInfo: PragmaTableInfo<Self>,
-      primaryKeyName: String,
-      foreignKeys: [PragmaForeignKeyList<Self>],
-      tableName: String,
-      salt: String
-    ) -> QueryFragment {
-      if tableInfo.name == primaryKeyName, tableInfo.isInt {
-        return $backfillUUID(id: #sql("\(quote: tableInfo.name)"), table: tableName, salt: salt)
-          .queryFragment
-      } else if tableInfo.isInt,
-        let foreignKey = foreignKeys.first(where: { $0.from == tableInfo.name })
-      {
-        return $backfillUUID(
-          id: #sql("\(quote: foreignKey.from)"),
-          table: foreignKey.table,
-          salt: salt
+        var newColumns: [String] = []
+        var convertedColumns: [QueryFragment] = []
+        if primaryKeys.first == nil {
+          convertedColumns.append("NULL")
+          newColumns.append(columns.primaryKey.name)
+        }
+        newColumns.append(contentsOf: tableInfo.map(\.name))
+        convertedColumns.append(
+          contentsOf: tableInfo.map { tableInfo -> QueryFragment in
+            if tableInfo.name == primaryKey.name, tableInfo.isInt {
+              return $backfillUUID(
+                id: #sql("\(quote: tableInfo.name)"), table: tableName, salt: salt
+              )
+              .queryFragment
+            } else if tableInfo.isInt,
+              let foreignKey = foreignKeys.first(where: { $0.from == tableInfo.name })
+            {
+              return $backfillUUID(
+                id: #sql("\(quote: foreignKey.from)"),
+                table: foreignKey.table,
+                salt: salt
+              )
+              .queryFragment
+            } else {
+              return QueryFragment(quote: tableInfo.name)
+            }
+          }
         )
-        .queryFragment
-      } else {
-        return QueryFragment(quote: tableInfo.name)
+
+        try #sql(QueryFragment(stringLiteral: newSchema)).execute(db)
+        try #sql(
+          """
+          INSERT INTO \(quote: newTableName) \
+          ("rowid", \(newColumns.map { "\(quote: $0)" }.joined(separator: ", ")))
+          SELECT "rowid", \(convertedColumns.joined(separator: ", ")) \
+          FROM \(Self.self)
+          ORDER BY "rowid"
+          """
+        )
+        .execute(db)
+        try #sql(
+          """
+          DROP TABLE \(Self.self)
+          """
+        )
+        .execute(db)
+        try #sql(
+          """
+          ALTER TABLE \(quote: newTableName) RENAME TO \(Self.self)
+          """
+        )
+        .execute(db)
       }
     }
-  }
+  #endif
 
   extension StringProtocol {
     fileprivate func quoted() -> String {
