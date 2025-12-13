@@ -170,7 +170,6 @@
           .fetchOne(db)
           ?? nil
 
-<<<<<<< HEAD
         guard let schema
         else {
           throw MigrationError(reason: .tableNotFound(tableName))
