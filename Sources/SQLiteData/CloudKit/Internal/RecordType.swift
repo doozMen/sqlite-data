@@ -1,4 +1,4 @@
-#if canImport(CloudKit)
+#if canImport(CloudKit) && !compiler(>=6.3)
   @Table("sqlitedata_icloud_recordTypes")
   package struct RecordType: Hashable {
     @Column(primaryKey: true)

@@ -1,4 +1,4 @@
-#if canImport(CloudKit) && canImport(CryptoKit)
+#if canImport(CloudKit) && canImport(CryptoKit) && !compiler(>=6.3)
   import CryptoKit
   import Foundation
 

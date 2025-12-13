@@ -1,5 +1,5 @@
 {
-  "originHash" : "a18b1644857cf7bbf788548464ff5983bac7f7a8faa125c59045f5d830aa5f28",
+  "originHash" : "c53c34c164015d035216379ca730f2630209ddabb19d29107d35f34491225ea9",
   "pins" : [
     {
       "identity" : "combine-schedulers",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "fd16d76fd8b9a976d88bfb6cacc05ca8d19c91b6",
         "version" : "1.1.0"
+      }
+    },
+    {
+      "identity" : "grdb.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/doozMen/GRDB.swift",
+      "state" : {
+        "branch" : "master",
+        "revision" : "aa0079aeb82a4bf00324561a40bffe68c6fe1c26"
       }
     },
     {
@@ -85,19 +94,19 @@
     {
       "identity" : "swift-perception",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/pointfreeco/swift-perception",
+      "location" : "https://github.com/doozMen/swift-perception",
       "state" : {
-        "revision" : "4f47ebafed5f0b0172cf5c661454fa8e28fb2ac4",
-        "version" : "2.0.9"
+        "branch" : "main",
+        "revision" : "9237a92716ccbcd4be8c5330ed372f243c9d23d9"
       }
     },
     {
       "identity" : "swift-sharing",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/pointfreeco/swift-sharing",
+      "location" : "https://github.com/doozMen/swift-sharing",
       "state" : {
-        "revision" : "3bfc408cc2d0bee2287c174da6b1c76768377818",
-        "version" : "2.7.4"
+        "branch" : "main",
+        "revision" : "a367f93207aa67a7a9953946ae3b8d47d223f6af"
       }
     },
     {
@@ -107,6 +116,15 @@
       "state" : {
         "revision" : "a8b7c5e0ed33d8ab8887d1654d9b59f2cbad529b",
         "version" : "1.18.7"
+      }
+    },
+    {
+      "identity" : "swift-structured-queries",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/doozMen/swift-structured-queries",
+      "state" : {
+        "branch" : "main",
+        "revision" : "85f39901d6c6046fa2f5119717741d9cc8a50b7f"
       }
     },
     {
