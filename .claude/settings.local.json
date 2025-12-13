@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(swift --version:*)",
+      "Bash(~/.swiftly/bin/swiftly list:*)",
+      "Bash(~/.swiftly/bin/swiftly use:*)"
+    ]
+  }
+}

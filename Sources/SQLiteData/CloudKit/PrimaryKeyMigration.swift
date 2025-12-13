@@ -181,25 +181,18 @@
         newColumns.append(columns.primaryKey.name)
       }
       newColumns.append(contentsOf: tableInfo.map(\.name))
-      convertedColumns.append(
-        contentsOf: tableInfo.map { tableInfo -> QueryFragment in
-          if tableInfo.name == primaryKey.name, tableInfo.isInt {
-            return $backfillUUID(id: #sql("\(quote: tableInfo.name)"), table: tableName, salt: salt)
-              .queryFragment
-          } else if tableInfo.isInt,
-            let foreignKey = foreignKeys.first(where: { $0.from == tableInfo.name })
-          {
-            return $backfillUUID(
-              id: #sql("\(quote: foreignKey.from)"),
-              table: foreignKey.table,
-              salt: salt
-            )
-            .queryFragment
-          } else {
-            return QueryFragment(quote: tableInfo.name)
-          }
-        }
-      )
+      // NB: Swift 6.3-dev crashes on complex closures with #sql macro interpolation.
+      // Extracted to helper function to work around compiler bug.
+      for info in tableInfo {
+        let fragment = convertTableInfoToQueryFragment(
+          info,
+          primaryKeyName: primaryKey.name,
+          foreignKeys: foreignKeys,
+          tableName: tableName,
+          salt: salt
+        )
+        convertedColumns.append(fragment)
+      }
 
       try #sql(QueryFragment(stringLiteral: newSchema)).execute(db)
       try #sql(
@@ -224,6 +217,32 @@
         """
       )
       .execute(db)
+    }
+
+    // NB: Extracted from closure to work around Swift 6.3-dev compiler crash.
+    // The compiler crashes on complex closures mixing #sql macro interpolation with nested closures.
+    private static func convertTableInfoToQueryFragment(
+      _ tableInfo: PragmaTableInfo<Self>,
+      primaryKeyName: String,
+      foreignKeys: [PragmaForeignKeyList<Self>],
+      tableName: String,
+      salt: String
+    ) -> QueryFragment {
+      if tableInfo.name == primaryKeyName, tableInfo.isInt {
+        return $backfillUUID(id: #sql("\(quote: tableInfo.name)"), table: tableName, salt: salt)
+          .queryFragment
+      } else if tableInfo.isInt,
+        let foreignKey = foreignKeys.first(where: { $0.from == tableInfo.name })
+      {
+        return $backfillUUID(
+          id: #sql("\(quote: foreignKey.from)"),
+          table: foreignKey.table,
+          salt: salt
+        )
+        .queryFragment
+      } else {
+        return QueryFragment(quote: tableInfo.name)
+      }
     }
   }
 
