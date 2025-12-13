@@ -70,9 +70,6 @@ let package = Package(
                 "SQLiteData",
                 .product(name: "ConcurrencyExtras", package: "swift-concurrency-extras"),
                 .product(name: "CustomDump", package: "swift-custom-dump"),
-        .product(name: "Perception", package: "swift-perception"),
-        .product(name: "Sharing", package: "swift-sharing"),
-        .product(name: "StructuredQueriesSQLite", package: "swift-structured-queries"),
             ]
         ),
         .testTarget(
@@ -82,7 +79,6 @@ let package = Package(
                 "SQLiteDataTestSupport",
                 .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
                 .product(name: "InlineSnapshotTesting", package: "swift-snapshot-testing"),
-          package: "swift-tagged",
                 .product(name: "SnapshotTestingCustomDump", package: "swift-snapshot-testing"),
                 .product(name: "StructuredQueries", package: "swift-structured-queries"),
             ]
