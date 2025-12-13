@@ -5,10 +5,7 @@ import PackageDescription
 let package = Package(
   name: "sqlite-data",
   platforms: [
-    .iOS(.v13),
-    .macOS(.v10_15),
-    .tvOS(.v13),
-    .watchOS(.v7),
+    .macOS(.v15),
   ],
   products: [
     .library(
