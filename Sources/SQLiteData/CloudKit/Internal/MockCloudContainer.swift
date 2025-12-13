@@ -1,4 +1,4 @@
-#if canImport(CloudKit)
+#if canImport(CloudKit) && !compiler(>=6.3)
   import CloudKit
 
   @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)

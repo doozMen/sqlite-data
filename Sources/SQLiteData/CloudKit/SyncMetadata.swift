@@ -1,4 +1,4 @@
-#if canImport(CloudKit)
+#if canImport(CloudKit) && !compiler(>=6.3)
   import CloudKit
 
   /// A table that tracks metadata related to synchronized data.

@@ -1,4 +1,6 @@
-#if canImport(CloudKit)
+// NB: Swift 6.3-dev compiler crashes on the generic `open` function in _update.
+// Tracking: https://github.com/doozMen/sqlite-data/issues/2
+#if canImport(CloudKit) && !compiler(>=6.3)
   import CloudKit
   import CryptoKit
   import StructuredQueriesCore

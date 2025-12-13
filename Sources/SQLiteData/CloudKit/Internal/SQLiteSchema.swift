@@ -1,4 +1,4 @@
-#if canImport(CloudKit)
+#if canImport(CloudKit) && !compiler(>=6.3)
   @Table("sqlite_schema")
   package struct SQLiteSchema {
     package let type: ObjectType
