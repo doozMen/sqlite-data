@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "sqlite-data",
     platforms: [
-        .macOS(.v26)
+        .macOS(.v15)
     ],
     products: [
         .library(
