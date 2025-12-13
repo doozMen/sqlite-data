@@ -291,7 +291,7 @@
 
       self.userModificationTime = other.userModificationTime
       for column in T.TableColumns.writableColumns {
-        func open<Root, Value>(_ column: some WritableTableColumnExpression<Root, Value>) {
+        func open<Value>(_ column: some WritableTableColumnExpression<T, Value>) {
           let key = column.name
           let keyPath = column.keyPath as! KeyPath<T, Value.QueryOutput>
           let didSet: Bool

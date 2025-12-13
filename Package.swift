@@ -1,4 +1,4 @@
-// swift-tools-version: 6.1
+// swift-tools-version: 6.2.1
 
 import PackageDescription
 
@@ -25,12 +25,13 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-collections", from: "1.0.0"),
-    .package(url: "https://github.com/groue/GRDB.swift", from: "7.6.0"),
+    // NB: Fork synced with upstream v7.9.0
+    .package(url: "https://github.com/doozMen/GRDB.swift", branch: "master"),
     .package(url: "https://github.com/pointfreeco/swift-concurrency-extras", from: "1.0.0"),
     .package(url: "https://github.com/pointfreeco/swift-custom-dump", from: "1.3.3"),
     .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.9.0"),
-    .package(url: "https://github.com/pointfreeco/swift-perception", from: "2.0.0"),
-    .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.3.0"),
+    // NB: Fork with Swift 6.3 fixes (uses doozMen/swift-perception)
+    .package(url: "https://github.com/doozMen/swift-sharing", branch: "main"),
     .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.18.4"),
     .package(
       url: "https://github.com/pointfreeco/swift-structured-queries",
@@ -51,7 +52,6 @@ let package = Package(
         .product(name: "GRDB", package: "GRDB.swift"),
         .product(name: "IssueReporting", package: "xctest-dynamic-overlay"),
         .product(name: "OrderedCollections", package: "swift-collections"),
-        .product(name: "Perception", package: "swift-perception"),
         .product(name: "Sharing", package: "swift-sharing"),
         .product(name: "StructuredQueriesSQLite", package: "swift-structured-queries"),
         .product(
@@ -103,7 +103,8 @@ for index in package.targets.indices {
 
 #if !os(Windows)
   // Add the documentation compiler plugin if possible
+  // NB: Use explicit type to avoid Swift 6.2.3 circular reference bug
   package.dependencies.append(
-    .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0")
+    Package.Dependency.package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0")
   )
 #endif
