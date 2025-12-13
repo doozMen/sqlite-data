@@ -173,7 +173,7 @@
                 database: container.privateCloudDatabase,
                 stateSerialization: try? metadatabase.read { db in
                   try StateSerialization
-                    .find(#bind(.private))
+                    .where { $0.scope == #bind(.private) }
                     .select(\.data)
                     .fetchOne(db)
                 },
@@ -185,7 +185,7 @@
                 database: container.sharedCloudDatabase,
                 stateSerialization: try? metadatabase.read { db in
                   try StateSerialization
-                    .find(#bind(.shared))
+                    .where { $0.scope == #bind(.shared) }
                     .select(\.data)
                     .fetchOne(db)
                 },
