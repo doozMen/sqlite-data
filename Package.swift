@@ -30,7 +30,7 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-concurrency-extras", from: "1.0.0"),
         .package(url: "https://github.com/pointfreeco/swift-custom-dump", from: "1.3.3"),
         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.9.0"),
-        // NB: Fork with Swift 6.3 fixes (uses doozMen/swift-perception)
+        // NB: Fork with Swift 6.3 fixes
         .package(url: "https://github.com/doozMen/swift-sharing", branch: "main"),
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.18.4"),
         // NB: Fork with Swift 6.3 fixes
@@ -70,9 +70,10 @@ let package = Package(
                 "SQLiteData",
                 .product(name: "ConcurrencyExtras", package: "swift-concurrency-extras"),
                 .product(name: "CustomDump", package: "swift-custom-dump"),
-        .product(name: "Perception", package: "swift-perception"),
-        .product(name: "Sharing", package: "swift-sharing"),
-        .product(name: "StructuredQueriesSQLite", package: "swift-structured-queries"),
+                .product(name: "InlineSnapshotTesting", package: "swift-snapshot-testing"),
+                .product(name: "Sharing", package: "swift-sharing"),
+                .product(name: "StructuredQueriesSQLite", package: "swift-structured-queries"),
+                .product(name: "StructuredQueriesTestSupport", package: "swift-structured-queries"),
             ]
         ),
         .testTarget(
@@ -82,7 +83,7 @@ let package = Package(
                 "SQLiteDataTestSupport",
                 .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
                 .product(name: "InlineSnapshotTesting", package: "swift-snapshot-testing"),
-          package: "swift-tagged",
+                .product(name: "Tagged", package: "swift-tagged"),
                 .product(name: "SnapshotTestingCustomDump", package: "swift-snapshot-testing"),
                 .product(name: "StructuredQueries", package: "swift-structured-queries"),
             ]

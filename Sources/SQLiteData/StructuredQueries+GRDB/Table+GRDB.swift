@@ -55,7 +55,7 @@ extension StructuredQueriesCore.PrimaryKeyedTable {
     try all.find(db, key: primaryKey)
   }
 }
-#/
+*/
 
 // NB: Swift 6.2.3 and 6.3-dev guard Select.find(_:) in swift-structured-queries due to compiler crashes.
 // This extension depends on that method, so it must also be guarded.
