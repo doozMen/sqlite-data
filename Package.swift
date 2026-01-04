@@ -107,7 +107,8 @@ for index in package.targets.indices {
 
 #if !os(Windows)
     // Add the documentation compiler plugin if possible
+    // NB: Use explicit type to avoid Swift 6.2.3 circular reference bug
     package.dependencies.append(
-        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0")
+        Package.Dependency.package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0")
     )
 #endif
