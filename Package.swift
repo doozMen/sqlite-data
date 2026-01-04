@@ -30,8 +30,8 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-concurrency-extras", from: "1.0.0"),
         .package(url: "https://github.com/pointfreeco/swift-custom-dump", from: "1.3.3"),
         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.9.0"),
-        // NB: Fork with Swift 6.3 fixes (uses doozMen/swift-perception)
-        .package(url: "https://github.com/doozMen/swift-sharing", branch: "main"),
+        // NB: Fork with Swift 6.3 fixes
+        .package(url: "https://github.com/doozMen/swift-sharing", branch: "fix/swift-623-optimizer-crash"),
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.18.4"),
         // NB: Fork with Swift 6.3 fixes
         .package(
