@@ -25,18 +25,15 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-collections", from: "1.0.0"),
-        // NB: Fork synced with upstream v7.9.0
-        .package(url: "https://github.com/doozMen/GRDB.swift", branch: "master"),
+        .package(url: "https://github.com/doozMen/GRDB.swift", exact: "7.9.0-fork.1"),
         .package(url: "https://github.com/pointfreeco/swift-concurrency-extras", from: "1.0.0"),
         .package(url: "https://github.com/pointfreeco/swift-custom-dump", from: "1.3.3"),
         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.9.0"),
-        // NB: Fork with Swift 6.3 fixes
-        .package(url: "https://github.com/doozMen/swift-sharing", branch: "fix/swift-623-optimizer-crash"),
+        .package(url: "https://github.com/doozMen/swift-sharing", from: "2.7.4"),
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.18.4"),
-        // NB: Fork with Swift 6.3 fixes
         .package(
             url: "https://github.com/doozMen/swift-structured-queries",
-            branch: "main",
+            exact: "0.30.0-fork.1",
             traits: [
                 .trait(
                     name: "StructuredQueriesTagged",
@@ -70,6 +67,8 @@ let package = Package(
                 "SQLiteData",
                 .product(name: "ConcurrencyExtras", package: "swift-concurrency-extras"),
                 .product(name: "CustomDump", package: "swift-custom-dump"),
+                .product(name: "InlineSnapshotTesting", package: "swift-snapshot-testing"),
+                .product(name: "StructuredQueriesTestSupport", package: "swift-structured-queries"),
             ]
         ),
         .testTarget(
