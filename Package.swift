@@ -33,7 +33,7 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.18.4"),
         .package(
             url: "https://github.com/doozMen/swift-structured-queries",
-            from: "0.25.2",
+            exact: "0.30.0-fork.1",
             traits: [
                 .trait(
                     name: "StructuredQueriesTagged",
@@ -67,6 +67,8 @@ let package = Package(
                 "SQLiteData",
                 .product(name: "ConcurrencyExtras", package: "swift-concurrency-extras"),
                 .product(name: "CustomDump", package: "swift-custom-dump"),
+                .product(name: "InlineSnapshotTesting", package: "swift-snapshot-testing"),
+                .product(name: "StructuredQueriesTestSupport", package: "swift-structured-queries"),
             ]
         ),
         .testTarget(
