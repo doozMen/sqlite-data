@@ -186,24 +186,29 @@ extension SelectStatement where QueryValue == (), Joins == () {
   }
 }
 
-extension SelectStatement where QueryValue == (), From: PrimaryKeyedTable, Joins == () {
-  /// Returns a single value fetched from the database for a given primary key.
-  ///
-  /// - Parameters
-  ///   - db: A database connection.
-  ///   - primaryKey: A primary key identifying a table row.
-  /// - Returns: A single value decoded from the database.
-  @inlinable
-  public func find(
-    _ db: Database,
-    key primaryKey: some QueryExpression<From.PrimaryKey>
-  ) throws -> From.QueryOutput {
-    guard let record = try asSelect().find(primaryKey).fetchOne(db) else {
-      throw NotFound()
+// NB: Swift 6.2.3 and 6.3-dev guard Select.find(_:) in swift-structured-queries due to compiler crashes.
+// This extension depends on that method, so it must also be guarded.
+// Tracking: https://github.com/swiftlang/swift/issues/82529
+#if !compiler(>=6.2.3)
+  extension SelectStatement where QueryValue == (), From: PrimaryKeyedTable, Joins == () {
+    /// Returns a single value fetched from the database for a given primary key.
+    ///
+    /// - Parameters
+    ///   - db: A database connection.
+    ///   - primaryKey: A primary key identifying a table row.
+    /// - Returns: A single value decoded from the database.
+    @inlinable
+    public func find(
+      _ db: Database,
+      key primaryKey: some QueryExpression<From.PrimaryKey>
+    ) throws -> From.QueryOutput {
+      guard let record = try asSelect().find(primaryKey).fetchOne(db) else {
+        throw NotFound()
+      }
+      return record
     }
-    return record
   }
-}
+#endif
 
 @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
 extension SelectStatement where QueryValue == () {
