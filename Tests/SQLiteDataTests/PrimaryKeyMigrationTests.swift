@@ -1,3 +1,6 @@
+// NB: migratePrimaryKeys is disabled on Swift 6.2.3+ due to compiler crash
+// See: Sources/SQLiteData/CloudKit/PrimaryKeyMigration.swift
+#if !compiler(>=6.2.3)
 import DependenciesTestSupport
 import Foundation
 import InlineSnapshotTesting
@@ -1221,3 +1224,4 @@ extension SQLiteSchema {
     .where { !$0.name.hasPrefix("sqlite_") }
     .order(by: \.name)
 }
+#endif  // !compiler(>=6.2.3)
