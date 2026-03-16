@@ -1,4 +1,9 @@
 // swift-tools-version: 6.2.1
+//
+// This package requires Swift 6.2.1 or newer to build.
+// The manifest includes workarounds for known Swift 6.2.3 and 6.3 issues
+// (for example, the Swift-DocC plugin conditional and forks with Swift 6.3 fixes),
+// so older toolchains are not supported.
 
 import PackageDescription
 
